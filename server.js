@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const exjwt = require('express-jwt')
 const bodyParser = require('body-parser');
 const path = require('path');
-
+var axios = require('axios');
 app.use((req,res,next)=>{
     res.setHeader('Access-Control-Allow-Origin','http://localhost:3000');
     res.setHeader('Access-Control-Allow-Headers','Content-type,Authorization');
@@ -22,6 +22,7 @@ const jwtMW = exjwt({
     secret : secretKey,
     algorithms: ['HS256']
 })
+
 
 let users = [
     {
@@ -48,7 +49,7 @@ app.post('/api/login',(req,res)=>{
                 token
             });
             break;
-        }
+        }        
         else{
             res.status(401).json({
                 success : false,
@@ -77,16 +78,21 @@ app.get('/',(req,res) =>{
     res.sendFile(path.join(__dirname,'index.html'));
 });
 
-app.use(function(err,req,res,next){
+app.use(function(err,req,res,next){    
     if(err.name === 'UnauthorizedError'){
+        if(err.inner.name == "TokenExpiredError"){        
+            axios.get('http://localhost:3000');
+            return;
+        }
         res.status(401).json({
             success: false,
             officialError : err,
             err: 'Username or password is incorrect 2'
-        });
+        });               
     }else{
         next(err);
     }
+    
 })
 
 
