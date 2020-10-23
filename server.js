@@ -4,13 +4,14 @@ var app = express();
 const jwt = require('jsonwebtoken');
 const exjwt = require('express-jwt')
 const bodyParser = require('body-parser');
-const path = require('path');
-var axios = require('axios');
 app.use((req,res,next)=>{
     res.setHeader('Access-Control-Allow-Origin','http://localhost:3000');
     res.setHeader('Access-Control-Allow-Headers','Content-type,Authorization');
     next();
 })
+const path = require('path');
+var axios = require('axios');
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended : true}));
 
@@ -20,9 +21,19 @@ const PORT = 3000;
 const secretKey = 'My super secret key';
 const jwtMW = exjwt({
     secret : secretKey,
-    algorithms: ['HS256']
+    algorithms: ['HS256'],
+    isRevoked: isRevokedCallback
 })
 
+var isRevokedCallback = function(req, payload, done){
+    var issuer = payload.iss;
+    var tokenId = payload.jti;
+  
+    data.getRevokedToken(issuer, tokenId, function(err, token){
+      if (err) { return done(err); }
+      return done(null, !!token);
+    });
+  };
 
 let users = [
     {
@@ -42,22 +53,20 @@ app.post('/api/login',(req,res)=>{
     
     for(let user of users) {
         if(username == user.username && password == user.password){
-            let token = jwt.sign({id : user.id,username: user.username },secretKey, {expiresIn :60*3});
+            let token = jwt.sign({id : user.id,username: user.username },secretKey, {expiresIn :180});
             res.json({
                 success : true,
                 err : null,
                 token
             });
             break;
-        }        
-        else{
+        }
+    }        
             res.status(401).json({
                 success : false,
                 token : null,
                 err: 'Username or password is incorrect'
-            });
-        }
-    }
+            });        
 });
 
 app.get('/api/dashboard',jwtMW, (req,res) =>{
