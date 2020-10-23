@@ -21,19 +21,10 @@ const PORT = 3000;
 const secretKey = 'My super secret key';
 const jwtMW = exjwt({
     secret : secretKey,
-    algorithms: ['HS256'],
-    isRevoked: isRevokedCallback
+    algorithms: ['HS256']
 })
 
-var isRevokedCallback = function(req, payload, done){
-    var issuer = payload.iss;
-    var tokenId = payload.jti;
-  
-    data.getRevokedToken(issuer, tokenId, function(err, token){
-      if (err) { return done(err); }
-      return done(null, !!token);
-    });
-  };
+
 
 let users = [
     {
