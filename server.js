@@ -4,17 +4,17 @@ var app = express();
 const jwt = require('jsonwebtoken');
 const exjwt = require('express-jwt')
 const bodyParser = require('body-parser');
-app.use((req,res,next)=>{
-    res.setHeader('Access-Control-Allow-Origin','http://localhost:3000');
-    res.setHeader('Access-Control-Allow-Headers','Content-type,Authorization');
-    next();
-})
+
 const path = require('path');
 var axios = require('axios');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended : true}));
-
+app.use((req,res,next)=>{
+    res.setHeader('Access-Control-Allow-Origin','http://localhost:3000');
+    res.setHeader('Access-Control-Allow-Headers','Content-type,Authorization');
+    next();
+})
 
 const PORT = 3000;
 
@@ -53,7 +53,7 @@ app.post('/api/login',(req,res)=>{
     
     for(let user of users) {
         if(username == user.username && password == user.password){
-            let token = jwt.sign({id : user.id,username: user.username },secretKey, {expiresIn :180});
+            let token = jwt.sign({id : user.id,username: user.username },secretKey, {expiresIn :60});
             res.json({
                 success : true,
                 err : null,
@@ -89,10 +89,10 @@ app.get('/',(req,res) =>{
 
 app.use(function(err,req,res,next){    
     if(err.name === 'UnauthorizedError'){
-        if(err.inner.name == "TokenExpiredError"){        
-            axios.get('http://localhost:3000');
-            return;
-        }
+        // if(err.inner.name == "TokenExpiredError"){        
+        //     axios.get('http://localhost:3000');
+        //     return;
+        // }
         res.status(401).json({
             success: false,
             officialError : err,
