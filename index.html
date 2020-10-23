@@ -96,7 +96,7 @@
         function setExpiry() {
             console.log('Inside setExpiry');
             var expiry = Date.now();
-            var time = 20000;            
+            var time = 180000;            
             expiry = expiry + time;
             localStorage.setItem('expire', expiry);
         }
@@ -106,7 +106,7 @@
                 function () {
                     checkExpiry();
                 }
-                , 20000);
+                , 180000);
         }
 
         function checkExpiry() {
